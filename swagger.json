@@ -1,0 +1,258 @@
+{
+    "openapi":"3.0.3",
+    "info": {
+        "title":"Movie API",
+        "description":
+            "Essa API é basicamente um crud com schema de um filme (título, ano de lançamento, atores e resumo). Trabalhei essa interface com Node.js e suas bibliotecas. As principais bibliotecas utilizadas foram o bcrypt para criptografar a senha ao enviar a request, Express fornecendo estruturas básicas para uma construção de um servidor, Jsonwebtoken na parte de autenticação transmitindo dados de forma segura e por fim o Mongoose nos auxiliando na conexão com o banco de dados (MongoDB - NoSQL). Atenção: Para obter acesso as rotas privadas basta copiar o token gerado ao fazer login e colar no campo Authorize com um icon de cadeado ao lado.",
+        "version":"1.0.0"
+    },
+    "servers": [
+        {
+            "url":"http://localhost:3000/",
+            "description":"Public route."
+        }
+    ],
+    "paths": {
+        "/cadastro":{
+            "post": {
+                "summary":"Cadastrar o usuário.",
+                "description":"Essa rota será responsável por cadastrar um novo usuário no sistema.",
+                "tags":["User"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref":"#/components/schemas/User"
+                            },
+                            "examples": {
+                                "users": {
+                                    "value": {
+                                        "user":"newuser",
+                                        "email":"tested@mail.com",
+                                        "password":"Mypassword"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201":{ 
+                        "description":"OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "422":{
+                        "description":"Utilize outro e-mail."
+                    },
+                    "500":{
+                        "description":"Ocorreu algum erro ao realizar a requisição."
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "summary":"Fazer login.",
+                "description":"Essa rota é utilizada para fazer login com as credenciais registradas no cadastro.",
+                "tags":["User"],
+                "requestBody":{
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref":"#/components/schemas/User"
+                            },
+                            "examples": {
+                                "users": {
+                                    "value": {
+                                        "user":"newuser",
+                                        "password":"Mypassword"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "404": {
+                        "description":"Usuário não encontrado, tente novamente."
+                    },
+                    "422":{
+                        "description":"Senha incorreta."
+                    },
+                    "201":{
+                        "description":"Login concluído."
+                    },                                    
+                    "500":{
+                        "description":"Ocorreu algum erro ao realizar a requisição."
+                    }
+                }
+            }
+        },
+        "/movie": {
+            "get": {
+                "summary":"Consultar lista de filmes.",
+                "description":"Essa rota é utilizada para consultar a lista de filmes disponívies para o usuario. Esse é um endpoint privado, só permitimos acesso com o envio do token.",
+                "tags":["Movie"],
+                "security":[{ "bearerAuth": [] }],
+                "responses":{
+                    "401": {
+                        "description":"Token incorreto ou não enviado."
+                    },
+                    "201":{
+                        "description":"OK"
+                    },                                    
+                    "500":{
+                        "description":"Ocorreu algum erro ao realizar a requisição."
+                    }
+                }
+            },
+            "post": {
+                "summary":"Adicionar um filme.",
+                "description":"Essa rota é utilizada para adicionar novos filmes na lista. Essa rota é privada, por conta disso você precisa informar o token antes da requisição.",
+                "tags":["Movie"],
+                "security":[{ "bearerAuth": [] }],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema":{
+                                "$ref":"#/components/schemas/Movie"
+                            },
+                            "examples":{
+                                "movies": {
+                                    "value": {
+                                        "title":"John Wick De Volta ao Jogo",
+                                        "year":"2014",
+                                        "actors":"Keanu Reeves",
+                                        "summary":"John Wick é um lendário assassino de aluguel aposentado, lidando com o luto após perder o grande amor de sua vida. Quando um gângster invade sua casa, mata seu cachorro e rouba seu carro, ele é forçado a voltar à ativa e inicia sua vingança."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "201":{
+                        "description":"OK"
+                    },                                    
+                    "500":{
+                        "description":"Ocorreu algum erro ao realizar a requisição."
+                    }
+                }
+            }           
+        },
+        "/movie/{id}": {
+            "delete": {
+                "summary":"Excluir um filme.",
+                "description":"Essa rota é utilizada para excluir algum filme da lista a partir de um ID. Essa rota é privada, por conta disso você precisa informar o token antes da requisição.",
+                "tags":["Movie"],
+                "security":[{ "bearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name":"id",
+                        "in":"path",
+                        "description":"Deletar filme por id",
+                        "required":"true"
+                    }
+                ],
+                "responses":{
+                    "201":{
+                        "description":"OK"
+                    },                                    
+                    "500":{
+                        "description":"Ocorreu algum erro ao realizar a requisição."
+                    }
+                }
+            },
+            "put": {
+                "summary":"Atualizar algum filme.",
+                "description":"Essa rota permite para nós atualizar alguma filme dentro da lista a partir de um ID. ",
+                "tags":["Movie"],
+                "security":[{ "bearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name":"id",
+                        "in":"path",
+                        "description":"Atualizar um filme por id",
+                        "required":"true"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema":{
+                                "$ref":"#/components/schemas/Movie"
+                            },
+                            "examples":{
+                                "movies": {
+                                    "value": {
+                                        "title":"John Wick 2",
+                                        "year":"2017",
+                                        "actors":"Keanu Reeves",
+                                        "summary":"John Wick é forçado a deixar a aposentadoria mais uma vez por causa de uma promessa antiga e viaja para Roma, com o objetivo de ajudar um velho amigo a derrubar uma organização secreta, perigosa e mortal de assassinos procurados em todo o mundo."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "201":{
+                        "description":"OK"
+                    },                                    
+                    "500":{
+                        "description":"Ocorreu algum erro ao realizar a requisição."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {             
+            "User": {
+                "type":"object",
+                "properties": {
+                    "user":{
+                        "type":"string"
+                    },
+                    "email":{
+                        "type":"string"
+                    },
+                    "password":{
+                        "type":"string"
+                    }
+                    
+                }
+            },
+            "Movie": {
+                "type":"object",
+                "properties": {
+                    "title": {
+                        "type":"string"
+                    },
+                    "year": {
+                        "type":"number"
+                    },
+                    "actors": {
+                        "type":"string"
+                    },
+                    "summary": {
+                        "type":"string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
