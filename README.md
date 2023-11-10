@@ -1,4 +1,4 @@
-<h1 align="center">MOvie API</h1>
+<h1 align="center">Movie API</h1>
 
 <p align="center">
  API de filmes com autenticação JWT hospedando em um banco de dados MongoDB - NoSQL.
